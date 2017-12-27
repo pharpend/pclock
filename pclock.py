@@ -10,7 +10,7 @@ import yaml
 
 ##
 #Title: pclock
-#Authors: Peter H and Trevor D
+#Authors: Peter Harpending and Trevor Dick
 ##
 
 class Entry:
@@ -23,7 +23,7 @@ class Entry:
 #test dateutil
 #print(p.parse('12/24/17 12:00 MDT'))
 
-#nts: example instanciation of class
+#nts: instanciation of class
 e = Entry("12/20/2017 7:00PM MST","12/20/17 8:00PM MST")
 print(e.in_time)
 print(e.out_time)
@@ -34,54 +34,32 @@ class Project:
         self.entries = []
 
 
-    def add_entry (self, ety):
-        self.entries.append(ety)
-        #print(self.entries)
-        
-
 class Journal:
     def __init__(self, projects = []):
        self.projects = projects
 
-
-    # read string and convert to journal object
+    # read from yaml file and convert to string
     def from_yaml(yaml_string):
-        J = Journal()
-        data_load = yaml.load(yaml_string)
-        #print(data_load.keys())
-
-        for (k,v) in data_load.items():
-            proj = Project(k)
-            print(k)
-            
-            for e in v:
-                print(e)
-                ety = Entry(**e)
-                proj.add_entry(ety)
-
-            J.projects.append(proj)
-            
-        #print(data_load)
-        #print(J)
-
+        data_load = yaml.load(f)
+        print(data_load)
         
-    # convert journal object to dictionry and convert to string
-    # inverse of "from_yaml" function (needs to be unit tested)
+    # write to yaml file
     def to_yaml(journal):
-        # make a journal into a dictionary
-        foobar = [Journal([a,b]),Journal([c,d,e]),Journal([f])]
-        d = dict([q.projects for q in foobar])
-        print(str(d))
-        print(d.keys())
+        #with io.open('f.yaml','w') as outfile:
+        #yaml.dump(f,outfile,default_flow_style = False)
+        return None
 
-        # convert dictonary into string
-        data_write = open('d.yaml','w')
-        yaml.dump(d,data_write,default_flow_style = False)
+p1 = Project("wrap presents")
+p2 = Project("python code")
+p3 = Project("find algebra books")
+p4 = Project("sleep")
 
+journal = [p1,p2,p3,p4]
+print(journal)
 
 
 homedir = os.environ['HOME']
 #print(homedir)
-print(homedir + '/PrgProjects/pclock/sched1.yaml')
-f = open(homedir + '/PrgProjects/pclock/sched1.yaml','r')
-Journal.from_yaml(f.read())
+print(homedir + '/.pclock.yaml')
+f = open(homedir + '/.pclock.yaml','r')
+print(f.read())
