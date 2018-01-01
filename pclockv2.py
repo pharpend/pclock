@@ -43,9 +43,18 @@ class Project:
         self.entries[no_clockout_idx].out_time = t
         print(t)
         
+    # boolean function to check whether clocked in or out
+    def clocked_out(self):
+        ell = len(self.entries)
+        no_clockout_indeces = [i for i in range(0,ell) if None == self.entries[i].out_time]
+
+        return( 0 == (len(no_clockout_indeces)) )
+        
+            
 
 class Journal:
     def __init__(self, projects = []):
+        #nst projects is the instance of Journal
        self.projects = projects
        
     # read from yaml file and convert to Journal object
@@ -152,7 +161,14 @@ def main():
             
         elif 's' == ipt:
             #nst: clocked in or out
-            print('display status of projects')
+            print('Status of projects:')
+            for p in jnl.projects:
+                #print(p.clocked_out(), p.name)
+                y = p.clocked_out()
+                if y == True:
+                    print(p.name,'is clocked out.')
+                else:
+                    print(p.name,'has not been clocked out.')
             
         elif ipt in ['q','x','exit','quit']:
             print('good bye')
