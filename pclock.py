@@ -10,7 +10,7 @@ import yaml
 
 ##
 #Title: pclock
-#Authors: Peter H and Trevor D
+#Authors: T. Dick and P. Harpending
 ##
 
 tdy_date = d.datetime.now()
