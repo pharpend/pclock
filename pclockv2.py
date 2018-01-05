@@ -122,7 +122,7 @@ def main():
     """
     #TODO: make portable
     homedir = os.environ['HOME']
-    yaml_file = open(homedir + '/PrgProjects/pclock/sched1.yaml','r')
+    yaml_file = open(homedir + '/src/pclock/sched1.yaml','r')
     yaml_file_contents = yaml_file.read()
     jnl = Journal.from_yaml(yaml_file_contents)
 
