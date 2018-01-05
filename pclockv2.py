@@ -29,6 +29,12 @@ class Entry:
         except:
             self.out_time = None
 
+    def to_dict(self):
+        '''convert entry to dictionary'''
+        d = { 'in_time' : self.in_time.strftime('%c %z')
+            , 'out_time' : self.out_time.strftime('%c %z')
+            }
+        return d
 
 class Project:
     def __init__(self, name):
@@ -60,7 +66,7 @@ class Project:
         assert(1 == len(no_clockout_indeces))
         no_clockout_idx = no_clockout_indeces[0]
         t = time.strftime('%c %z',time.localtime())
-        self.entries[no_clockout_idx].out_time = t
+        self.entries[no_clockout_idx].out_time = p.parse(t)
         print(t ,'\n')
 
     def clocked_out(self):
@@ -87,31 +93,44 @@ class Journal:
         J = Journal()
         data_load = yaml.load(yaml_string)
 
-        for (k,v) in data_load.items():
-            proj = Project(k)
+        if None == data_load:
+            return J
+        else:
+            for (k,v) in data_load.items():
+                proj = Project(k)
 
-            for e in v:
-                #print(e)  #NST: Print all in an out times for all entries
-                ety = Entry(**e)
-                proj.add_entry(ety)
+                for e in v:
+                    #print(e)  #NST: Print all in an out times for all entries
+                    ety = Entry(**e)
+                    proj.add_entry(ety)
 
-            J.projects.append(proj)
+                J.projects.append(proj)
 
-        return J
+            return J
+
+    def to_yaml(self):
+        '''Converts this journal to a yaml string'''
+        d = {}
+        for p in self.projects:
+            d[p.name] = [e.to_dict() for e in p.entries]
+        return yaml.dump(d)
+
+    def write_yaml(self, file_path):
+        data_write = open(file_path, 'w')
+        data_write.write(self.to_yaml())
+        data_write.close()
 
     #TODO: add ability to make new journal entry
-    def add_project(prj):
+    def add_project(self, elm):
         """Create a new entry in the journal, a new project"""
-        pass
+        print(self.projects)
+        p = Project(elm)
+        self.projects.append(p)
+        print(self.projects)
 
-    def display_projects(jnl):
+    def display_projects(self):
         """Print out a list of all working entries of a journal"""
-##      for p in jnl.projects:
-##          print(p.name)
-        print([p.name for p in jnl.projects]) #TODO: get rid of quotes
-
-
-
+        print([p.name for p in self.projects]) #TODO: get rid of quotes
 
 def main():
     """Main method
@@ -122,22 +141,37 @@ def main():
     """
     #TODO: make portable
     homedir = os.environ['HOME']
-    yaml_file = open(homedir + '/src/pclock/sched1.yaml','r')
+    path = homedir + '/.pclock.yaml'
+    try:
+        yaml_file = open(path,'r')
+    except IOError:
+        f = open(path, 'w')
+        f.close()
+        yaml_file = open(path,'r')
+
     yaml_file_contents = yaml_file.read()
     jnl = Journal.from_yaml(yaml_file_contents)
 
     print('''\n pclock, v0.0.0
+    a = add project
     i = clock in
     o = clock out
     p = projects
     s = project status
+    t = print dictified self
     q, x, exit, quit = exit pclock \n''')
 
     while True:
         ipt = input('pclock> ')
         ipt = ipt.strip()
+        if 'a' == ipt:
+            elm = input('Name of project: ')
+            jnl.add_project(elm)
 
-        if 'i' == ipt:
+        elif 't' == ipt:
+            print(jnl.to_yaml())
+
+        elif 'i' == ipt:
             print('\nSelect a project to clock into: ')
             prjs = jnl.projects
             num_projects = len(prjs)
@@ -176,7 +210,7 @@ def main():
 
         elif 'p' == ipt:
             print('\nYour current projects: ')
-            Journal.display_projects(jnl)
+            jnl.display_projects()
 
         elif 's' == ipt:
             print('\nStatus of projects:\n')
